@@ -7,6 +7,7 @@
  */
 
 // The names and URLs to all of the feeds we'd like available.
+
 var allFeeds = [
     {
         name: 'Udacity Blog',
@@ -40,6 +41,8 @@ function init() {
  * This function all supports a callback as the second parameter
  * which will be called after everything has run successfully.
  */
+
+/* Commented out as it is currently not working.
  function loadFeed(id, cb) {
      var feedUrl = allFeeds[id].url,
          feedName = allFeeds[id].name;
@@ -60,11 +63,11 @@ function init() {
                  title.html(feedName);   // Set the header text
                  container.empty();      // Empty out all previous entries
 
-                 /* Loop through the entries we just loaded via the Google
-                  * Feed Reader API. We'll then parse that entry against the
-                  * entryTemplate (created above using Handlebars) and append
-                  * the resulting HTML to the list of entries on the page.
-                  */
+                 // Loop through the entries we just loaded via the Google
+                 // Feed Reader API. We'll then parse that entry against the
+                 // entryTemplate (created above using Handlebars) and append
+                 // the resulting HTML to the list of entries on the page.
+                 //
                  entries.forEach(function(entry) {
                      container.append(entryTemplate(entry));
                  });
@@ -82,7 +85,78 @@ function init() {
        dataType: "json"
      });
  }
+*/
 
+/* Found that there is an issue with the feed reader from the udacity forums.
+ * User Mario_ posted this code to an alternative site that provides rss to json
+ * service.
+ */
+ function loadFeed(id, cb) {
+	    var feedUrl = encodeURIComponent(allFeeds[id].url);
+	    var feedName = allFeeds[id].name;
+
+	    
+	    function success(result, status){
+	        if (result.status == "error") {
+		    	/* I needed to add a check to Mario_'s code, as the Linear Digressions
+		    	 * feed was coming back with an error disguised an a success stating
+		    	 * too many requests.
+		    	 * 
+		    	 * The response looked like this:
+		    	 * success({"status":"error", "errorMessage":"Too many requests.  Try again later."});
+		    	 * 
+		    	 * Since this json object was missing nodes, the function would error.
+		    	 */
+	        	
+	        	alert(result.errorMessage);
+	        	if (cb) {
+	        		cb();
+	        	}
+	        } else {
+		        var container = $('.feed'),
+	            title = $('.header-title'),
+	            entries = result["items"],
+	            entriesLen = result["items"].length,
+	            entryTemplate = Handlebars.compile($('.tpl-entry').html());
+
+	            title.html(feedName);   // Set the header text
+	            container.empty();      // Empty out all previous entries
+
+	            /* Loop through the entries we just loaded via the Google
+	             * Feed Reader API. We'll then parse that entry against the
+	             * entryTemplate (created above using Handlebars) and append
+	             * the resulting HTML to the list of entries on the page.
+	             */
+	            entries.forEach(function(entry) {
+	                container.append(entryTemplate(entry));
+	            });
+	            if (cb) {
+	                cb();
+	            }	        	
+	        }
+
+	    }
+	    
+	    $.ajax({
+	        cache: true,
+	        processData: false,
+	        type: "GET",
+	        url: "http://rss2json.com/api.json?",
+	        data: ("rss_url=" + feedUrl),
+	        dataType: "jsonp",
+	        jsonpCallback: "success",
+	        success: success,
+	        error: function (result, status, err){
+	            console.log('error');
+	            //run only the callback without attempting to parse result due to error
+	            if (cb) {
+	                cb();
+	            }
+	        }
+	     });
+	}
+ 
+ 
 /* Google API: Loads the Feed Reader API and defines what function
  * to call when the Feed Reader API is done loading.
  */
