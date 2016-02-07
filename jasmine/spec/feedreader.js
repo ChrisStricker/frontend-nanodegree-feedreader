@@ -137,8 +137,8 @@ $(function() {
 		/* Before any tests, load the default feed, and then load another feed */
 		beforeAll(function(done) {
 			loadFeed(0, function() {
-				$feedHeader = $('.header-title');
-				$entryTitles = $('.entry').find('h2');
+				$feedHeader = $('.header-title').html();
+				$entryTitles = $('.entry').find('h2').html();
 				loadFeed(1, done);
 			});
 		});
