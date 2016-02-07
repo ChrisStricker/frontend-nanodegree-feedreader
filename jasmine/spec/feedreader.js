@@ -63,8 +63,7 @@ $(function() {
 
     	/* This is the testing suite for the menu functionality */
     	describe('The menu', function() {
-	        var $menuElement;
-	        var $menuLink;
+	        var $menuElement, $menuLink;
 	        
 	    	beforeAll(function() {
 	    		$menuElement = $('.slide-menu');
@@ -121,10 +120,9 @@ $(function() {
 			loadFeed(0, done);
 		});
 		
-		it('there is at least one entry element in the container', function(done) {
+		it('there is at least one entry element in the container', function() {
 			var $entries = $('.feed').find('.entry');
 			expect($entries.length).toBeGreaterThan(0);
-			done();
 		});
     	});
     
@@ -146,15 +144,13 @@ $(function() {
 		});
 		
 		/* Test if the header has changed */
-		it('has a new header', function(done) {
+		it('has a new header', function() {
 			expect($('.header-title').html() != $feedHeader).toBe(true);
-			done();
 		});
 		
 		/* Test if the entries have changed by testing their headers */
-		it('has new content', function(done) {
+		it('has new content', function() {
 			expect($('.entry').find('h2').html() != $entryTitles).toBe(true);
-			done();
 		});
 		
 		// Restore the page to its initial state
